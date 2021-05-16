@@ -7,11 +7,7 @@
 # Create scheduled running
 # /system scheduler add name=update-ddns interval=1m on-event=googledomain-ddns
 
-# Username and password are the long cryptic ones Google Domains provides, not your regular Google account ones
-:local currentIP ""
-:local hostIP ""
-:local result ""
-
+# Username and password are the long cryptic ones Google Domains provide, not your regular Google account ones
 :local hostName1 "goh.one"
 :local userName1 ""
 :local password1 ""
@@ -36,15 +32,19 @@
 :local userName6 ""
 :local password6 ""
 
-:log info ("[Google Domain] Starting script...")
-:set currentIP [/ip cloud get public-address]
+:log info ("[Google Domain] Script starting...")
 
-:set hostIP [:resolve "$hostName1"]
+# Get current WAN IP
+:local currentIP [/ip cloud get public-address]
+
+# Get current IP for domain/subdomain
+:local hostIP [:resolve "$hostName1"]
+
 :if ($currentIP != $hostIP) do={
   :do {
     :log info ("[Google Domain] Updating $hostName1 from $hostIP to $currentIP")
     /tool fetch url="https://$userName1:$password1@domains.google.com/nic/update?hostname=$hostName1&myip=$currentIP" mode=https dst-path=GoogleDNS.txt
-    :set result [/file get GoogleDNS.txt contents];
+    :local result [/file get GoogleDNS.txt contents];
     :log info ("[Google Domain] Result for $hostName1: $result")
   } on-error={ 
     :log error ("[Google Domain] Failed to set new IP address") 
@@ -58,7 +58,7 @@
   :do {
     :log info ("[Google Domain] Updating $hostName2 from $hostIP to $currentIP")
     /tool fetch url="https://$userName2:$password2@domains.google.com/nic/update?hostname=$hostName2&myip=$currentIP" mode=https dst-path=GoogleDNS.txt
-    :set result [/file get GoogleDNS.txt contents];
+    :local result [/file get GoogleDNS.txt contents];
     :log info ("[Google Domain] Result for $hostName2: $result")
   } on-error={ 
     :log error ("[Google Domain] Failed to set new IP address") 
@@ -72,7 +72,7 @@
   :do {
     :log info ("[Google Domain] Updating $hostName3 from $hostIP to $currentIP")  
     /tool fetch url="https://$userName3:$password3@domains.google.com/nic/update?hostname=$hostName3&myip=$currentIP" mode=https dst-path=GoogleDNS.txt
-    :set result [/file get GoogleDNS.txt contents];
+    :local result [/file get GoogleDNS.txt contents];
     :log info ("[Google Domain] Result for $hostName3: $result")
   } on-error={ 
     :log error ("[Google Domain] Failed to set new IP address") 
@@ -86,7 +86,7 @@
   :do {
     :log info ("[Google Domain] Updating $hostName4 from $hostIP to $currentIP")  
     /tool fetch url="https://$userName4:$password4@domains.google.com/nic/update?hostname=$hostName4&myip=$currentIP" mode=https dst-path=GoogleDNS.txt
-    :set result [/file get GoogleDNS.txt contents];
+    :local result [/file get GoogleDNS.txt contents];
     :log info ("[Google Domain] Result for $hostName4: $result")
   } on-error={ 
     :log error ("[Google Domain] Failed to set new IP address") 
@@ -100,7 +100,7 @@
   :do {
     :log info ("[Google Domain] Updating $hostName5 from $hostIP to $currentIP")  
     /tool fetch url="https://$userName5:$password5@domains.google.com/nic/update?hostname=$hostName5&myip=$currentIP" mode=https dst-path=GoogleDNS.txt
-    :set result [/file get GoogleDNS.txt contents];
+    :local result [/file get GoogleDNS.txt contents];
     :log info ("[Google Domain] Result for $hostName5: $result")
   } on-error={ 
     :log error ("[Google Domain] Failed to set new IP address") 
@@ -114,7 +114,7 @@
   :do {
     :log info ("[Google Domain] Updating $hostName6 from $hostIP to $currentIP")  
     /tool fetch url="https://$userName6:$password6@domains.google.com/nic/update?hostname=$hostName6&myip=$currentIP" mode=https dst-path=GoogleDNS.txt
-    :set result [/file get GoogleDNS.txt contents];
+    :local result [/file get GoogleDNS.txt contents];
     :log info ("[Google Domain] Result for $hostName6: $result")
   } on-error={ 
     :log error ("[Google Domain] Failed to set new IP address") 
