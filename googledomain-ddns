@@ -1,166 +1,49 @@
 # Google Domain DDNS Update Script
 # Tested with RouterOS 6.48
-# Date: 15/05/2021
+# Date: 16/05/2021
 # Policies required: Don't require Permissions, read, write, policy, test
 # https://forum.mikrotik.com/viewtopic.php?t=93458
 
 # Create scheduled running
 # /system scheduler add name=update-ddns interval=1m on-event=googledomain-ddns
 
+# Fill in domain/subdomains, username and password below
 # Username and password are the long cryptic ones Google Domains provide, not your regular Google account ones
-:local hostName1 "goh.one"
-:local userName1 ""
-:local password1 ""
-
-:local hostName2 "nas.goh.one"
-:local userName2 ""
-:local password2 ""
-
-:local hostName3 "traefik.goh.one"
-:local userName3 ""
-:local password3 ""
-
-:local hostName4 "whoami.goh.one"
-:local userName4 ""
-:local password4 ""
-
-:local hostName5 "portainer.goh.one"
-:local userName5 ""
-:local password5 ""
-
-:local hostName6 "files.goh.one"
-:local userName6 ""
-:local password6 ""
+:local domains { \
+{ "domain.com";      "username_for_domain.com";      "password_for_domain.com" }; \
+{ "sub.domain.com";  "username_for_sub.domain.com";  "password_for_sub.domain.com" }};
 
 :log info ("[Google Domain] Script starting...")
 
 # Get current WAN IP
 :local currentIP [/ip cloud get public-address]
 
-# Loop buffers
-:local hostName ""
-:local userName ""
-:local password ""
-:local hostIP ""
+:foreach domain in=$domains do={
 
-:set hostName $hostName1
-:set hostIP [:resolve "$hostName"]
-:set userName $userName1
-:set password $password1
-:if ($currentIP != $hostIP) do={
-  :do {
-    :log info ("[Google Domain] Updating $hostName from $hostIP to $currentIP")
-    :local result [/tool fetch url="https://$userName:$password@domains.google.com/nic/update?hostname=$hostName&myip=$currentIP" mode=https as-value output=user]
-    :if ($result->"status" = "finished") do={
-        :log info ("[Google Domain] Result: " $result->"data")
-    } else={
-        :log info ("[Google Domain] Error updating IP " $result->"data")
-    }
-  } on-error={ 
-    :log error ("[Google Domain] Failed to set new IP address") 
-  } 
-} else={
-    :log info ("[Google Domain] IP not changed for $hostName ($hostIP)")
-}
+  :local domainName [:pick $domain 0]
+  :local domainIP [:resolve "$domainName"]  
+  :local userName [:pick $domain 1]
+  :local password [:pick $domain 2]
 
-:set hostName $hostName2
-:set hostIP [:resolve "$hostName"]
-:set userName $userName2
-:set password $password2
-:if ($currentIP != $hostIP) do={
-  :do {
-    :log info ("[Google Domain] Updating $hostName from $hostIP to $currentIP")
-    :local result [/tool fetch url="https://$userName:$password@domains.google.com/nic/update?hostname=$hostName&myip=$currentIP" mode=https as-value output=user]
-    :if ($result->"status" = "finished") do={
+  :if ($currentIP != $domainIP) do={
+    :do {
+      :log info ("[Google Domain] Updating $domainName from $domainIP to $currentIP")
+      :local result [/tool fetch url="https://$userName:$password@domains.google.com/nic/update?hostname=$domainName&myip=$currentIP" mode=https as-value output=user]
+      :if ($result->"status" = "finished") do={
         :log info ("[Google Domain] Result: " $result->"data")
-    } else={
+      } else={
         :log info ("[Google Domain] Error updating IP " $result->"data")
-    }
-  } on-error={ 
-    :log error ("[Google Domain] Failed to set new IP address") 
-  } 
-} else={
-    :log info ("[Google Domain] IP not changed for $hostName ($hostIP)")
-}
-
-:set hostName $hostName3
-:set hostIP [:resolve "$hostName"]
-:set userName $userName3
-:set password $password3
-:if ($currentIP != $hostIP) do={
-  :do {
-    :log info ("[Google Domain] Updating $hostName from $hostIP to $currentIP")
-    :local result [/tool fetch url="https://$userName:$password@domains.google.com/nic/update?hostname=$hostName&myip=$currentIP" mode=https as-value output=user]
-    :if ($result->"status" = "finished") do={
-        :log info ("[Google Domain] Result: " $result->"data")
-    } else={
-        :log info ("[Google Domain] Error updating IP " $result->"data")
-    }
-  } on-error={ 
-    :log error ("[Google Domain] Failed to set new IP address") 
-  } 
-} else={
-    :log info ("[Google Domain] IP not changed for $hostName ($hostIP)")
-}
-
-:set hostName $hostName4
-:set hostIP [:resolve "$hostName"]
-:set userName $userName4
-:set password $password4
-:if ($currentIP != $hostIP) do={
-  :do {
-    :log info ("[Google Domain] Updating $hostName from $hostIP to $currentIP")
-    :local result [/tool fetch url="https://$userName:$password@domains.google.com/nic/update?hostname=$hostName&myip=$currentIP" mode=https as-value output=user]
-    :if ($result->"status" = "finished") do={
-        :log info ("[Google Domain] Result: " $result->"data")
-    } else={
-        :log info ("[Google Domain] Error updating IP " $result->"data")
-    }
-  } on-error={ 
-    :log error ("[Google Domain] Failed to set new IP address") 
-  } 
-} else={
-    :log info ("[Google Domain] IP not changed for $hostName ($hostIP)")
-}
-
-:set hostName $hostName5
-:set hostIP [:resolve "$hostName"]
-:set userName $userName5
-:set password $password5
-:if ($currentIP != $hostIP) do={
-  :do {
-    :log info ("[Google Domain] Updating $hostName from $hostIP to $currentIP")
-    :local result [/tool fetch url="https://$userName:$password@domains.google.com/nic/update?hostname=$hostName&myip=$currentIP" mode=https as-value output=user]
-    :if ($result->"status" = "finished") do={
-        :log info ("[Google Domain] Result: " $result->"data")
-    } else={
-        :log info ("[Google Domain] Error updating IP " $result->"data")
-    }
-  } on-error={ 
-    :log error ("[Google Domain] Failed to set new IP address") 
-  } 
-} else={
-    :log info ("[Google Domain] IP not changed for $hostName ($hostIP)")
-}
-
-:set hostName $hostName6
-:set hostIP [:resolve "$hostName"]
-:set userName $userName6
-:set password $password6
-:if ($currentIP != $hostIP) do={
-  :do {
-    :log info ("[Google Domain] Updating $hostName from $hostIP to $currentIP")
-    :local result [/tool fetch url="https://$userName:$password@domains.google.com/nic/update?hostname=$hostName&myip=$currentIP" mode=https as-value output=user]
-    :if ($result->"status" = "finished") do={
-        :log info ("[Google Domain] Result: " $result->"data")
-    } else={
-        :log info ("[Google Domain] Error updating IP " $result->"data")
-    }
-  } on-error={ 
-    :log error ("[Google Domain] Failed to set new IP address") 
-  } 
-} else={
-    :log info ("[Google Domain] IP not changed for $hostName ($hostIP)")
+      }
+    } on-error={ 
+      :log error ("[Google Domain] Failed to set new IP address") 
+    } 
+  } else={
+    :log info ("[Google Domain] IP is already updated for $domainName ($domainIP)")
+  }
 }
 
 :log info ("[Google Domain] Script ended")
+
+
+#result of already updated: nochg 111.222.333.444
+#result of successful update: good 111.222.333.444
