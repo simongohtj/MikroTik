@@ -1,0 +1,104 @@
+#GoDaddy DDNS Update Script
+#Test with RouterOS 6.45.2 (Minimum version RouterOS 6.44)
+#Date:2019/08/02
+#The read,write,policy,test that all of these policies need to be set in script for the global variable 
+
+#ref1 https://www.instructables.com/id/Quick-and-Dirty-Dynamic-DNS-Using-GoDaddy/
+#ref2 http://www.minitw.com/post/2018/05/09/routeros-ddns-namecheap
+
+#Easy Test
+# /tool fetch url="https://api.godaddy.com/v1/domains/[domain]/records/A/[hostname]" http-method=put http-data="[{\"data\": \"10.10.10.10\"}]" http-header-field="content-type: application/json,Authorization: sso-key [API_KEY]:[API_SECRET]"
+
+#Create Schedule running
+# /system scheduler add name=update-ddns interval=1m on-event=godaddy-ddns
+
+#kye token format is [API_KEY]:[API_SECRET]
+:local ddnkey "Authorization: sso-key abc:def"
+:local ddnsdomain "goh.one"
+:local ddnshostname "@"
+:local ddnshostname2 "files"
+:local ddnshostname3 "nas"
+:local ddnshostname4 "portainer"
+:local ddnshostname5 "traefik"
+:local ddnshostname6 "whoami"
+:local ddnsinterface "ether1"
+
+:log info ("DDNS: Starting script...")
+
+#Use global variable to check if need update
+:global ddnslastipADSL1
+:global ddnsipADSL1 [/ip address get [/ip address find actual-interface=$ddnsinterface] address ]
+:if ([:typeof [:global ddnslastipADSL1]] = nil ) do={ :global ddnslastipADSL1 0.0.0.0/0 } else={ :set ddnslastipADSL1 $ddnslastipADSL1 }
+
+:if ([:typeof [:global ddnsipADSL1]] = nil ) do={
+  :log info ("DDNS: No ip address present on " . $ddnsinterface . ", please check.")
+} else={
+  :if ($ddnsipADSL1 != $ddnslastipADSL1) do={
+    :local ipFormat [:pick $ddnsipADSL1 0 [:find $ddnsipADSL1 "/"]];
+  :log info "DDNS-Update use $ddnsinterface IP : $ipFormat"
+    :local ddnsurl "https://api.godaddy.com/v1/domains/$ddnsdomain/records/A/$ddnshostname" 
+    :local ddnsipjson "[{\"data\": \"$ipFormat\"}]"
+    :local result [/tool fetch url=$ddnsurl http-method=put http-data=$ddnsipjson http-header-field="content-type: application/json,$ddnkey" as-value output=user]
+    :if ($result->"status" = "finished") do={
+        :log info ($ddnshostname . "." . $ddnsdomain . " Update IP " . $ipFormat . " Success")
+        :global ddnslastipADSL1 $ddnsipADSL1
+    } else={
+        :log info ("DDNS Update Error".$result->status)
+    }
+
+    :local ddnsurl "https://api.godaddy.com/v1/domains/$ddnsdomain/records/A/$ddnshostname2" 
+    :local ddnsipjson "[{\"data\": \"$ipFormat\"}]"
+    :local result [/tool fetch url=$ddnsurl http-method=put http-data=$ddnsipjson http-header-field="content-type: application/json,$ddnkey" as-value output=user]
+    :if ($result->"status" = "finished") do={
+        :log info ($ddnshostname2 . "." . $ddnsdomain . " Update IP " . $ipFormat . " Success")
+        :global ddnslastipADSL1 $ddnsipADSL1
+    } else={
+        :log info ("DDNS Update Error".$result->status)
+    }
+
+    :local ddnsurl "https://api.godaddy.com/v1/domains/$ddnsdomain/records/A/$ddnshostname3" 
+    :local ddnsipjson "[{\"data\": \"$ipFormat\"}]"
+    :local result [/tool fetch url=$ddnsurl http-method=put http-data=$ddnsipjson http-header-field="content-type: application/json,$ddnkey" as-value output=user]
+    :if ($result->"status" = "finished") do={
+        :log info ($ddnshostname3 . "." . $ddnsdomain . " Update IP " . $ipFormat . " Success")
+        :global ddnslastipADSL1 $ddnsipADSL1
+    } else={
+        :log info ("DDNS Update Error".$result->status)
+    }
+
+    :local ddnsurl "https://api.godaddy.com/v1/domains/$ddnsdomain/records/A/$ddnshostname4" 
+    :local ddnsipjson "[{\"data\": \"$ipFormat\"}]"
+    :local result [/tool fetch url=$ddnsurl http-method=put http-data=$ddnsipjson http-header-field="content-type: application/json,$ddnkey" as-value output=user]
+    :if ($result->"status" = "finished") do={
+        :log info ($ddnshostname4 . "." . $ddnsdomain . " Update IP " . $ipFormat . " Success")
+        :global ddnslastipADSL1 $ddnsipADSL1
+    } else={
+        :log info ("DDNS Update Error".$result->status)
+    }
+
+    :local ddnsurl "https://api.godaddy.com/v1/domains/$ddnsdomain/records/A/$ddnshostname5" 
+    :local ddnsipjson "[{\"data\": \"$ipFormat\"}]"
+    :local result [/tool fetch url=$ddnsurl http-method=put http-data=$ddnsipjson http-header-field="content-type: application/json,$ddnkey" as-value output=user]
+    :if ($result->"status" = "finished") do={
+        :log info ($ddnshostname5 . "." . $ddnsdomain . " Update IP " . $ipFormat . " Success")
+        :global ddnslastipADSL1 $ddnsipADSL1
+    } else={
+        :log info ("DDNS Update Error".$result->status)
+    }
+
+    :local ddnsurl "https://api.godaddy.com/v1/domains/$ddnsdomain/records/A/$ddnshostname6" 
+    :local ddnsipjson "[{\"data\": \"$ipFormat\"}]"
+    :local result [/tool fetch url=$ddnsurl http-method=put http-data=$ddnsipjson http-header-field="content-type: application/json,$ddnkey" as-value output=user]
+    :if ($result->"status" = "finished") do={
+        :log info ($ddnshostname6 . "." . $ddnsdomain . " Update IP " . $ipFormat . " Success")
+        :global ddnslastipADSL1 $ddnsipADSL1
+    } else={
+        :log info ("DDNS Update Error".$result->status)
+    }                
+
+  } else={
+    :log info "DDNS: IP No Change"
+  }
+}
+
+:log info ("DDNS: Script ended")
