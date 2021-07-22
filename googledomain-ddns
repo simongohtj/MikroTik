@@ -1,6 +1,6 @@
 # Google Domain DDNS Update Script
-# Tested with RouterOS 6.48
-# Date: 16/05/2021
+# Tested with RouterOS 6.48.2
+# Date: 22/07/2021
 # Policies required: Don't require Permissions, read, write, policy, test
 # https://forum.mikrotik.com/viewtopic.php?t=93458
 
