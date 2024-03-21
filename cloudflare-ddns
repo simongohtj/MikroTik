@@ -1,0 +1,41 @@
+# Cloudflare DDNS update script
+# Tested with RouterOS 7.13.5 (not yet working)
+# Date: 21/03/2024
+# Policies required: Don't require Permissions, read, write, policy, test
+# https://forum.mikrotik.com/viewtopic.php?t=93458
+
+:local apiKey "1zTOLJexzw7Fdm8rgBr0tjD_JVM3VW_xaJZD-8go"
+:local cfUser "simongohtj@gmail.com"
+:local zoneID "1f1a42d85056e3c8345b378e5ce85019"
+:local recordID "173a3f29b50af94fdcda2f63857cc444"
+:local domainName "goh.one"
+:local ttl 60
+
+:log info ("[Cloudflare DDNS] Script starting...")
+
+# Get current domain name IP
+:local cloudflareDNSIP [:resolve $domainName]
+# :local cloudflareDNSIP 116.87.6.60
+:log info ("[Cloudflare DDNS] Current $domainName address: $cloudflareDNSIP")
+
+# Get current WAN IP
+:local currentIP [/ip cloud get public-address]
+:log info ("[Cloudflare DDNS] Current WAN address: $currentIP")
+
+:if ($currentIP != $cloudflareDNSIP) do={
+  :log info ("[Cloudflare DDNS] Updating $domainName IP from $cloudflareDNSIP to $currentIP");
+
+  :local url    "https://api.cloudflare.com/client/v4/zones/$zoneID/dns_records/$recordID"
+
+  :local result [/tool fetch http-method=put mode=https url=$url check-certificate=no output=user as-value http-header-field="Authorization: Bearer $apiKey,Content-Type: application/json" http-data="{\"type\":\"A\",\"name\":\"$domainName\",\"content\":\"$currentIP\",\"ttl\":$ttl,\"proxied\":false}"]
+
+  :if ($result->"success" = "true") do={
+    :log info ("[Cloudflare DDNS] Updated $domainName IP from $cloudflareDNSIP to $currentIP");
+  } else={
+    :log info ("[Cloudflare DDNS] Error updating IP " $result->"errors")
+  }
+} else={
+  :log info ("[Cloudflare DDNS] IP is already updated for $domainName")
+}
+
+:log info ("[Cloudflare DDNS] Script ended")
